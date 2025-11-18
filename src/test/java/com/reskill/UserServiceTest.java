@@ -1,4 +1,4 @@
-package com.reskill.service.user;
+package com.reskill;
 
 import com.reskill.dto.EmailMessage;
 import com.reskill.dto.user.CreateUserRequest;
@@ -8,6 +8,7 @@ import com.reskill.exception.exceptions.ResourceNotFoundException;
 import com.reskill.messaging.producer.EmailProducer;
 import com.reskill.model.User;
 import com.reskill.repository.UserRepository;
+import com.reskill.service.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -91,10 +92,10 @@ class UserServiceTest {
         when(userRepository.existsByEmail("new@example.com")).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(user);
 
-        UpdateUserRequest request = new UpdateUserRequest("New Name", "new@example.com");
+        UpdateUserRequest request = new UpdateUserRequest("New Namee", "new@example.com");
         var response = userService.updateUser(1L, request, loggedUser);
 
-        assertEquals("New Name", response.name());
+        assertEquals("New Namee", response.name());
         assertEquals("new@example.com", response.email());
     }
 
