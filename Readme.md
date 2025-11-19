@@ -3,7 +3,7 @@
 O **Mentor AI** é uma plataforma de requalificação profissional voltada
 para facilitar o retorno e a recolocação de pessoas no mercado de
 trabalho.\
-O sistema oferece cadastro de usuários, empresas, oportunidades, análise
+O sistema oferece cadastro de usuários, análise
 de perfis e uso de **IA (Groq + Spring AI)** para auxiliar na
 recomendação de carreira.
 
