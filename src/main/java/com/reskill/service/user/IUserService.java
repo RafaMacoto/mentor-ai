@@ -13,9 +13,14 @@ public interface IUserService {
 
     UserResponse getUserById(Long id, User loggedUser);
 
+    UserResponse getCurrentUser(User loggedUser);
+
     Page<UserResponse> getAllUsers(Pageable pageable);
 
     UserResponse updateUser(Long id, UpdateUserRequest request, User loggedUser);
+
+    UserResponse updateCurrentUser(UpdateUserRequest request, User loggedUser);
+
 
     void deleteUser(Long id, User loggedUser);
 }

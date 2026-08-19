@@ -92,6 +92,11 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public UserResponse getCurrentUser(User loggedUser) {
+        return UserMapper.toResponse(findUserOrThrow(loggedUser.getId()));
+    }
+
+    @Override
     public Page<UserResponse> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable)
                 .map(UserMapper::toResponse);
@@ -112,6 +117,11 @@ public class UserService implements IUserService {
 
         User saved = userRepository.save(user);
         return UserMapper.toResponse(saved);
+    }
+
+    @Override
+    public UserResponse updateCurrentUser(UpdateUserRequest request, User loggedUser) {
+        return updateUser(loggedUser.getId(), request, loggedUser);
     }
 
     @Override

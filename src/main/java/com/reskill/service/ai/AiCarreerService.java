@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -25,24 +27,36 @@ public class AiCarreerService implements IAiCarreerService {
 
     private String buildPrompt(String goal, List<String> skills) {
         return """
-                Gere um planejamento de carreira baseado nas informações abaixo:
+                Você é um mentor de carreira. Gere um plano de desenvolvimento prático e personalizado.
 
-                Objetivo principal:
-                - %s
+                DADOS DO USUÁRIO
+                Objetivo: %s
+                Skills atuais: %s
 
-                Skills do usuário:
-                - %s
+                REGRAS DE RESPOSTA
+                - Responda em português do Brasil.
+                - Não use Markdown, asteriscos, hashtags, tabelas ou introduções fora do formato.
+                - Escreva uma recomendação clara, com um parágrafo para cada nível.
+                - Gere de 5 a 10 tarefas concretas, em ordem de prioridade.
+                - Cada tarefa deve ser uma única linha e começar com um número seguido de ponto.
+                - Não repita o objetivo nem as skills sem acrescentar orientação prática.
 
-                Responda seguindo este formato:
+                USE EXATAMENTE ESTE FORMATO
 
                 RECOMENDAÇÃO:
-                (um texto com níveis iniciante, intermediário e avançado)
+                Nível iniciante: [orientação prática]
+                Nível intermediário: [orientação prática]
+                Nível avançado: [orientação prática]
 
                 ITENS DO PLANEJAMENTO:
-                - liste entre 5 e 10 tarefas, um item por linha
+                1. [tarefa concreta]
+                2. [tarefa concreta]
+                3. [tarefa concreta]
+                4. [tarefa concreta]
+                5. [tarefa concreta]
                 """.formatted(
                 goal,
-                String.join("\n- ", skills)
+                String.join(", ", skills)
         );
     }
 
@@ -51,17 +65,39 @@ public class AiCarreerService implements IAiCarreerService {
             return new AiRecommendation("Sem recomendação gerada.", new ArrayList<>());
         }
 
-        String[] split = fullText.split("ITENS DO PLANEJAMENTO:");
-        String recommendationText = split[0].replace("RECOMENDAÇÃO:", "").trim();
+        String normalized = fullText.replace("\r\n", "\n");
+        String[] split = normalized.split("(?i)(?:ITENS DO PLANEJAMENTO|TAREFAS)\\s*:", 2);
+        String recommendationText = cleanRecommendation(split[0]);
 
         List<String> items = new ArrayList<>();
         if (split.length > 1) {
             for (String line : split[1].split("\n")) {
-                line = line.replace("-", "").trim();
-                if (!line.isBlank()) items.add(line);
+                Matcher matcher = Pattern.compile("^\\s*(?:[-*•]|\\d+[.)])\\s+(.+?)\\s*$").matcher(line);
+                if (matcher.matches()) {
+                    String item = cleanInlineFormatting(matcher.group(1));
+                    if (!item.isBlank()) items.add(item);
+                }
             }
         }
 
         return new AiRecommendation(recommendationText, items);
+    }
+
+    private String cleanRecommendation(String text) {
+        return text
+                .replaceFirst("(?i)RECOMENDAÇÃO\\s*:", "")
+                .replaceFirst("(?i)RECOMENDACAO\\s*:", "")
+                .lines()
+                .map(String::trim)
+                .filter(line -> !line.isBlank() && !line.matches("[*_#-]+"))
+                .map(line -> line.replaceFirst("^[-*_#]+\\s*", ""))
+                .map(this::cleanInlineFormatting)
+                .reduce((first, second) -> first + "\\n" + second)
+                .orElse("Sem recomendação gerada.")
+                .trim();
+    }
+
+    private String cleanInlineFormatting(String text) {
+        return text.replace("**", "").replace("__", "").replace("`", "").trim();
     }
 }
