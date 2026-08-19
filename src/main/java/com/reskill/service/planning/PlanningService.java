@@ -14,6 +14,7 @@ import com.reskill.repository.PlanningRepository;
 import com.reskill.repository.UserRepository;
 import com.reskill.service.ai.AiCarreerService;
 import com.reskill.service.ai.IAiCarreerService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,7 @@ public class PlanningService implements IPlanningService {
     private final IAiCarreerService aiService;
     private final PlanningMapper mapper;
 
+    @Transactional
     @Override
     public PlanningResponse createPlanning(Long userId, CreatePlanningRequest request) {
 
@@ -55,6 +57,7 @@ public class PlanningService implements IPlanningService {
         return mapper.toResponse(planning);
     }
 
+    @Transactional
     @Override
     public List<PlanningResponse> getAllUserPlannings(Long userId) {
         User user = loadUser(userId);
@@ -64,6 +67,7 @@ public class PlanningService implements IPlanningService {
                 .toList();
     }
 
+    @Transactional
     @Override
     public PlanningResponse getPlanningById(Long userId, Long planningId) {
         Planning planning = loadPlanning(planningId);
@@ -71,6 +75,7 @@ public class PlanningService implements IPlanningService {
         return mapper.toResponse(planning);
     }
 
+    @Transactional
     @Override
     public PlanningResponse updatePlanningItem(Long userId, Long planningId, Long itemId, UpdatePlanningItemRequest request) {
 
@@ -89,6 +94,7 @@ public class PlanningService implements IPlanningService {
 
         return mapper.toResponse(planning);
     }
+
 
     @Override
     public void deletePlanning(Long userId, Long planningId) {

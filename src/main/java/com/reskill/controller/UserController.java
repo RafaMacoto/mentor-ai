@@ -113,4 +113,20 @@ public class UserController {
         userService.deleteUser(id, loggedUser);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser(
+            @AuthenticationPrincipal User loggedUser
+    ) {
+        return ResponseEntity.ok(userService.getCurrentUser(loggedUser));
+    }
+
+    @PutMapping("/me")
+    @CacheEvict(value = "users", allEntries = true)
+    public ResponseEntity<UserResponse> updateCurrentUser(
+            @Valid @RequestBody UpdateUserRequest request,
+            @AuthenticationPrincipal User loggedUser
+    ) {
+        return ResponseEntity.ok(userService.updateCurrentUser(request, loggedUser));
+    }
 }
